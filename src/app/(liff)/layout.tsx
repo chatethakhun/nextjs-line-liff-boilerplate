@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { initializeLiff, getLiffProfile } from "@/lib/liff/client";
 import { getLiffIdByPath } from "@/lib/liff/config";
@@ -17,7 +17,7 @@ type AuthState = "loading" | "authenticated" | "error";
 export default function LiffLayout({ children }: LiffLayoutProps) {
   const pathname = usePathname();
   const { status: sessionStatus, update: updateSession } = useSession();
-
+  const router = useRouter();
   const [authState, setAuthState] = useState<AuthState>("loading");
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string>("Initializing...");
@@ -74,6 +74,7 @@ export default function LiffLayout({ children }: LiffLayoutProps) {
       });
 
       if (result?.ok) {
+        router.refresh();
         setDebugInfo("Auth successful!");
         await updateSession();
         setAuthState("authenticated");
